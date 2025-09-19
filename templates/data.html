@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Explorer - 3D Molecular Clustering</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .navbar {
+            background-color: #2c3e50;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .cluster-badge {
+            font-size: 0.8rem;
+            padding: 0.4em 0.6em;
+        }
+        .cluster-0 { background-color: #E699A7; }
+        .cluster-1 { background-color: #FEDD9E; }
+        .cluster-2 { background-color: #A6D9C0; }
+        .cluster-3 { background-color: #71A7D2; }
+        .property-card {
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .data-table {
+            font-size: 0.9rem;
+        }
+        .data-table th {
+            background-color: #2c3e50;
+            color: white;
+        }
+        .text-center {
+            text-align: center !important;
+        }
+        .card-header h5 {
+            text-align: center;
+            margin-bottom: 0;
+        }
+        .center-align {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-atom me-2"></i>3D Molecular Clustering
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/data">Data Explorer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col">
+                <h2 class="text-center">Data Explorer</h2>
+                <p class="text-center text-muted">Explore the molecular dataset used in this application</p>
+                
+                <!-- 数据集概览 -->
+                <div class="card">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h5><i class="fas fa-database me-2"></i>Dataset Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row center-align">
+                            <div class="col-md-3 mb-3">
+                                <div class="card text-center property-card">
+                                    <div class="card-body">
+                                        <h2 id="total-molecules">642</h2>
+                                        <p class="card-text">Total Molecules</p>
+                                        <a href="#cluster-distribution" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card text-center property-card">
+                                    <div class="card-body">
+                                        <h2>4</h2>
+                                        <p class="card-text">Clusters</p>
+                                        <a href="#cluster-distribution" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card text-center property-card">
+                                    <div class="card-body">
+                                        <h2>5</h2>
+                                        <p class="card-text">Properties</p>
+                                        <a href="#property-statistics" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card text-center property-card">
+                                    <div class="card-body">
+                                        <h2>8</h2>
+                                        <p class="card-text">Descriptors</p>
+                                        <a href="#property-statistics" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6 class="text-center">Dataset Description</h6>
+                            <p>This dataset contains 642 molecules clustered into 4 groups based on their electronic and structural properties. The clustering was performed using K-means algorithm with 4 clusters after dimensionality reduction using Principal Component Analysis (PCA).</p>
+                            
+                            <h6 class="text-center">Included Properties</h6>
+                            <ul>
+                                <li>Relative Binding Energy (Es-Ea in eV)</li>
+                                <li>LUMO energy (in eV)</li>
+                                <li>HOMO energy (in eV)</li>
+                                <li>Dielectric Constant of solvents</li>
+                                <li>Cluster assignment (0-3)</li>
+                            </ul>
+                            
+                            <h6 class="text-center">Data Source</h6>
+                            <p>The molecular data was obtained from computational chemistry simulations using DFT methods. The dielectric constants represent the solvent environment used in the calculations.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 集群分布 -->
+                <div class="card" id="cluster-distribution">
+                    <div class="card-header bg-success text-white text-center">
+                        <h5><i class="fas fa-chart-pie me-2"></i>Cluster Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="chart-container">
+                                    <canvas id="clusterChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="table-responsive">
+                                    <table class="table table-striped data-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">Cluster</th>
+                                                <th class="text-center">Number of Molecules</th>
+                                                <th class="text-center">Percentage</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center"><span class="badge cluster-0 cluster-badge">Cluster 0</span></td>
+                                                <td class="text-center" id="cluster-0-count">269</td>
+                                                <td class="text-center" id="cluster-0-pct">41.9%</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center"><span class="badge cluster-1 cluster-badge">Cluster 1</span></td>
+                                                <td class="text-center" id="cluster-1-count">48</td>
+                                                <td class="text-center" id="cluster-1-pct">7.5%</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center"><span class="badge cluster-2 cluster-badge">Cluster 2</span></td>
+                                                <td class="text-center" id="cluster-2-count">39</td>
+                                                <td class="text-center" id="cluster-2-pct">6.1%</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center"><span class="badge cluster-3 cluster-badge">Cluster 3</span></td>
+                                                <td class="text-center" id="cluster-3-count">286</td>
+                                                <td class="text-center" id="cluster-3-pct">44.5%</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 属性统计 -->
+                <div class="card" id="property-statistics">
+                    <div class="card-header bg-info text-white text-center">
+                        <h5><i class="fas fa-chart-bar me-2"></i>Property Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="chart-container">
+                                    <canvas id="propertyChart1"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="chart-container">
+                                    <canvas id="propertyChart2"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive mt-4">
+                            <table class="table table-striped data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Property</th>
+                                        <th class="text-center">Min</th>
+                                        <th class="text-center">Max</th>
+                                        <th class="text-center">Mean</th>
+                                        <th class="text-center">Std Dev</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-center">Relative Binding Energy (eV)</td>
+                                        <td class="text-center" id="be-min">-4.2</td>
+                                        <td class="text-center" id="be-max">-1.1</td>
+                                        <td class="text-center" id="be-mean">-2.7</td>
+                                        <td class="text-center" id="be-std">0.8</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">LUMO (eV)</td>
+                                        <td class="text-center" id="lumo-min">-2.3</td>
+                                        <td class="text-center" id="lumo-max">0.5</td>
+                                        <td class="text-center" id="lumo-mean">-1.2</td>
+                                        <td class="text-center" id="lumo-std">0.6</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">HOMO (eV)</td>
+                                        <td class="text-center" id="homo-min">-6.8</td>
+                                        <td class="text-center" id="homo-max">-4.1</td>
+                                        <td class="text-center" id="homo-mean">-5.4</td>
+                                        <td class="text-center" id="homo-std">0.7</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">Dielectric Constant</td>
+                                        <td class="text-center" id="dc-min">0.3</td>
+                                        <td class="text-center" id="dc-max">0.9</td>
+                                        <td class="text-center" id="dc-mean">0.5</td>
+                                        <td class="text-center" id="dc-std">0.1</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 数据下载 -->
+                <div class="card">
+                    <div class="card-header bg-warning text-dark text-center">
+                        <h5><i class="fas fa-download me-2"></i>Data Download</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-center">Download the complete dataset or individual clusters for further analysis:</p>
+                        <div class="row center-align">
+                            <div class="col-md-3 mb-2">
+                                <a href="#" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-download me-2"></i>Full Dataset
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="#" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-download me-2"></i>Cluster 0
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="#" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-download me-2"></i>Cluster 1
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="#" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-download me-2"></i>Cluster 2
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="#" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-download me-2"></i>Cluster 3
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从后端获取统计数据
+            fetch('/api/cluster_stats')
+                .then(response => response.json())
+                .then(data => {
+                    // 更新集群统计
+                    document.getElementById('total-molecules').textContent = data.total_molecules;
+                    
+                    // 更新集群计数和百分比
+                    const total = data.total_molecules;
+                    for (let i = 0; i < 4; i++) {
+                        const count = data.cluster_counts[i] || 0;
+                        const percentage = ((count / total) * 100).toFixed(1);
+                        document.getElementById(`cluster-${i}-count`).textContent = count;
+                        document.getElementById(`cluster-${i}-pct`).textContent = `${percentage}%`;
+                    }
+                    
+                    // 更新属性统计
+                    const stats = data.property_stats;
+                    if (stats['Es-Ea (eV)']) {
+                        document.getElementById('be-min').textContent = stats['Es-Ea (eV)'].min;
+                        document.getElementById('be-max').textContent = stats['Es-Ea (eV)'].max;
+                        document.getElementById('be-mean').textContent = stats['Es-Ea (eV)'].mean;
+                        document.getElementById('be-std').textContent = stats['Es-Ea (eV)'].std;
+                    }
+                    
+                    if (stats['LUMO_sol (eV)']) {
+                        document.getElementById('lumo-min').textContent = stats['LUMO_sol (eV)'].min;
+                        document.getElementById('lumo-max').textContent = stats['LUMO_sol (eV)'].max;
+                        document.getElementById('lumo-mean').textContent = stats['LUMO_sol (eV)'].mean;
+                        document.getElementById('lumo-std').textContent = stats['LUMO_sol (eV)'].std;
+                    }
+                    
+                    if (stats['HOMO_sol (eV)']) {
+                        document.getElementById('homo-min').textContent = stats['HOMO_sol (eV)'].min;
+                        document.getElementById('homo-max').textContent = stats['HOMO_sol (eV)'].max;
+                        document.getElementById('homo-mean').textContent = stats['HOMO_sol (eV)'].mean;
+                        document.getElementById('homo-std').textContent = stats['HOMO_sol (eV)'].std;
+                    }
+                    
+                    if (stats['Dielectric constant of solvents']) {
+                        document.getElementById('dc-min').textContent = stats['Dielectric constant of solvents'].min;
+                        document.getElementById('dc-max').textContent = stats['Dielectric constant of solvents'].max;
+                        document.getElementById('dc-mean').textContent = stats['Dielectric constant of solvents'].mean;
+                        document.getElementById('dc-std').textContent = stats['Dielectric constant of solvents'].std;
+                    }
+                    
+                    // 创建图表
+                    createCharts(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching cluster stats:', error);
+                });
+            
+            // 创建图表
+            function createCharts(data) {
+                // 集群分布图表
+                const clusterCtx = document.getElementById('clusterChart').getContext('2d');
+                const clusterChart = new Chart(clusterCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Cluster 0', 'Cluster 1', 'Cluster 2', 'Cluster 3'],
+                        datasets: [{
+                            data: [
+                                data.cluster_counts[0] || 0,
+                                data.cluster_counts[1] || 0,
+                                data.cluster_counts[2] || 0,
+                                data.cluster_counts[3] || 0
+                            ],
+                            backgroundColor: [
+                                '#E699A7',
+                                '#FEDD9E', 
+                                '#A6D9C0',
+                                '#71A7D2'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                align: 'center',
+                                labels: {
+                                    boxWidth: 15,
+                                    padding: 15
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Molecules Distribution by Cluster',
+                                position: 'top',
+                                align: 'center'
+                            }
+                        }
+                    }
+                });
+                
+                // 属性统计图表1
+                const propCtx1 = document.getElementById('propertyChart1').getContext('2d');
+                const propChart1 = new Chart(propCtx1, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Cluster 0', 'Cluster 1', 'Cluster 2', 'Cluster 3'],
+                        datasets: [{
+                            label: 'Relative Binding Energy (eV)',
+                            data: [
+                                data.cluster_means[0] ? data.cluster_means[0]['Es-Ea (eV)'] || 0 : 0,
+                                data.cluster_means[1] ? data.cluster_means[1]['Es-Ea (eV)'] || 0 : 0,
+                                data.cluster_means[2] ? data.cluster_means[2]['Es-Ea (eV)'] || 0 : 0,
+                                data.cluster_means[3] ? data.cluster_means[3]['Es-Ea (eV)'] || 0 : 0
+                            ],
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Relative Binding Energy (eV)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                align: 'center'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Average Relative Binding Energy by Cluster',
+                                position: 'top',
+                                align: 'center'
+                            }
+                        }
+                    }
+                });
+                
+                // 属性统计图表2
+                const propCtx2 = document.getElementById('propertyChart2').getContext('2d');
+                const propChart2 = new Chart(propCtx2, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Cluster 0', 'Cluster 1', 'Cluster 2', 'Cluster 3'],
+                        datasets: [
+                            {
+                                label: 'LUMO (eV)',
+                                data: [
+                                    data.cluster_means[0] ? data.cluster_means[0]['LUMO_sol (eV)'] || 0 : 0,
+                                    data.cluster_means[1] ? data.cluster_means[1]['LUMO_sol (eV)'] || 0 : 0,
+                                    data.cluster_means[2] ? data.cluster_means[2]['LUMO_sol (eV)'] || 0 : 0,
+                                    data.cluster_means[3] ? data.cluster_means[3]['LUMO_sol (eV)'] || 0 : 0
+                                ],
+                                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'HOMO (eV)',
+                                data: [
+                                    data.cluster_means[0] ? data.cluster_means[0]['HOMO_sol (eV)'] || 0 : 0,
+                                    data.cluster_means[1] ? data.cluster_means[1]['HOMO_sol (eV)'] || 0 : 0,
+                                    data.cluster_means[2] ? data.cluster_means[2]['HOMO_sol (eV)'] || 0 : 0,
+                                    data.cluster_means[3] ? data.cluster_means[3]['HOMO_sol (eV)'] || 0 : 0
+                                ],
+                                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Energy (eV)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                align: 'center'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Average HOMO/LUMO by Cluster',
+                                position: 'top',
+                                align: 'center'
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
