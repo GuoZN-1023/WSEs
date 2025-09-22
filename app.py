@@ -277,9 +277,9 @@ def get_cluster_data():
             'HOMO (eV)': round(row.get('HOMO_sol (eV)', 0), 2),
             'Dielectric constant': round(row.get('Dielectric constant of solvents', 0), 2),
             'Cluster': int(row.get('Cluster', 0)),
-            'PC1': float(row.get('PC1', 0)),
-            'PC2': float(row.get('PC2', 0)),
-            'PC3': float(row.get('PC3', 0))
+            'PCA1': float(row.get('PC1', 0)),
+            'PCA2': float(row.get('PC2', 0)),
+            'PCA3': float(row.get('PC3', 0))
         })
     
     return jsonify({
@@ -318,9 +318,9 @@ def search_molecules():
                 'Dielectric constant': round(row.get('Dielectric constant of solvents', 0), 2),
                 'Similarity': round(similarity, 4),
                 'Cluster': int(row.get('Cluster', 0)),
-                'PC1': float(row.get('PC1', 0)),
-                'PC2': float(row.get('PC2', 0)),
-                'PC3': float(row.get('PC3', 0))
+                'PCA1': float(row.get('PC1', 0)),
+                'PCA2': float(row.get('PC2', 0)),
+                'PCA3': float(row.get('PC3', 0))
             })
     
     # 按相似度排序
