@@ -32,7 +32,7 @@ if not os.path.exists('/Users/guozhenning/Desktop/SRT/WSEs_0827'):
 # 创建占位图片
 def create_placeholder_image():
     # 创建简单的占位图片
-    img = Image.new('RGB', (300, 300), color='#f0f0f0')
+    img = Image.new('RGB', (300, 300), color='#666666')
     draw = ImageDraw.Draw(img)
     
     try:
@@ -90,13 +90,13 @@ def load_cluster_data():
     
     # 加载四个聚类簇的数据
     for i in range(4):
-        csv_path = f'/Users/guozhenning/Desktop/SRT/KMeans_4/cluster_{i}.csv'
+        csv_path = f'/Users/guozhenning/Desktop/SRT/KMeans_4/cluster_{i+1}.csv'
         
         if os.path.exists(csv_path):
             df = pd.read_csv(csv_path)
-            df['Cluster'] = i  # 添加聚类标签
+            df['Cluster'] = i+1  # 添加聚类标签，从1开始
             clusters.append(df)
-            print(f"成功加载聚类簇 {i}，共 {len(df)} 个分子")
+            print(f"成功加载聚类簇 {i+1}，共 {len(df)} 个分子")
         else:
             print(f"警告: 文件 {csv_path} 不存在")
     
@@ -122,7 +122,7 @@ def generate_sample_data():
         'PC1': [1.2, 0.8, -0.5, 1.5, -1.0, 0.3, -0.7, 1.8, -0.2, 0.9],
         'PC2': [0.5, -0.3, 1.2, -0.8, 0.7, -1.1, 0.9, -0.4, 1.3, -0.6],
         'PC3': [-0.7, 1.1, 0.4, -1.2, 0.8, -0.5, 1.0, -0.9, 0.6, -1.3],
-        'Cluster': [0, 0, 1, 1, 2, 2, 3, 3, 0, 1]  # 示例聚类标签
+        'Cluster': [1, 1, 2, 2, 3, 3, 4, 4, 1, 2]  # 修改聚类标签为1-4
     }
     
     df = pd.DataFrame(data)
@@ -145,10 +145,10 @@ def generate_sample_data():
 def create_3d_scatter(df):
     # 科学期刊风格的配色方案 - 为四个聚类簇分配不同颜色
     colors = {
-        0: '#E699A7',  # 红色
-        1: '#FEDD9E',  # 黄色
-        2: '#A6D9C0',  # 绿色
-        3: '#71A7D2'   # 蓝色
+        1: '#E699A7',  # 红色 - 聚类1
+        2: '#FEDD9E',  # 黄色 - 聚类2
+        3: '#A6D9C0',  # 绿色 - 聚类3
+        4: '#71A7D2'   # 蓝色 - 聚类4
     }
     
     # 确定使用的坐标轴
@@ -276,7 +276,7 @@ def get_cluster_data():
             'LUMO (eV)': round(row.get('LUMO_sol (eV)', 0), 2),
             'HOMO (eV)': round(row.get('HOMO_sol (eV)', 0), 2),
             'Dielectric constant': round(row.get('Dielectric constant of solvents', 0), 2),
-            'Cluster': int(row.get('Cluster', 0)),
+            'Cluster': int(row.get('Cluster', 1)),  # 默认值改为1
             'PCA1': float(row.get('PC1', 0)),
             'PCA2': float(row.get('PC2', 0)),
             'PCA3': float(row.get('PC3', 0))
@@ -317,7 +317,7 @@ def search_molecules():
                 'HOMO (eV)': round(row.get('HOMO_sol (eV)', 0), 2),
                 'Dielectric constant': round(row.get('Dielectric constant of solvents', 0), 2),
                 'Similarity': round(similarity, 4),
-                'Cluster': int(row.get('Cluster', 0)),
+                'Cluster': int(row.get('Cluster', 1)),  # 默认值改为1
                 'PCA1': float(row.get('PC1', 0)),
                 'PCA2': float(row.get('PC2', 0)),
                 'PCA3': float(row.get('PC3', 0))
@@ -460,3 +460,6 @@ if __name__ == '__main__':
                     img.save(img_path)
     
     app.run(debug=True, port=5000)
+
+
+
