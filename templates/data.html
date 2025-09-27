@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Explorer - 3D Molecular Clustering</title>
+    <title>Data Explorer - 3D molecular clustering</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -27,10 +27,10 @@
             font-size: 0.8rem;
             padding: 0.4em 0.6em;
         }
-        .cluster-0 { background-color: #E699A7; }
-        .cluster-1 { background-color: #FEDD9E; }
-        .cluster-2 { background-color: #A6D9C0; }
-        .cluster-3 { background-color: #71A7D2; }
+        .cluster-1 { background-color: #E699A7; }
+        .cluster-2 { background-color: #FEDD9E; }
+        .cluster-3 { background-color: #A6D9C0; }
+        .cluster-4 { background-color: #71A7D2; }
         .property-card {
             transition: all 0.3s ease;
             height: 100%;
@@ -230,7 +230,7 @@
                         <a class="nav-link" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/data">Data Explorer</a>
+                        <a class="nav-link active" href="/data">Data explorer</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/about">About</a>
@@ -243,21 +243,21 @@
     <div class="container mt-4">
         <div class="row">
             <div class="col">
-                <h2 class="text-center">Data Explorer</h2>
+                <h2 class="text-center">Data explorer</h2>
                 <p class="text-center text-muted">Explore the molecular dataset used in this application</p>
                 
                 <!-- 数据集概览 -->
                 <div class="card">
                     <div class="card-header bg-primary text-white text-center">
-                        <h5><i class="fas fa-database me-2"></i>Dataset Overview</h5>
+                        <h5><i class="fas fa-database me-2"></i>Dataset overview</h5>
                     </div>
                     <div class="card-body">
                         <div class="horizontal-cards-container">
                             <div class="card text-center horizontal-card">
                                 <div class="card-body">
-                                    <h2 id="total-molecules">642</h2>
-                                    <p class="card-text">Total Molecules</p>
-                                    <a href="/" class="btn btn-sm btn-outline-primary mt-2">View Molecules</a>
+                                    <h2 id="total-molecules">643</h2>
+                                    <p class="card-text">Total molecules</p>
+                                    <a href="/" class="btn btn-sm btn-outline-primary mt-2">View molecules</a>
                                 </div>
                             </div>
                             
@@ -265,7 +265,7 @@
                                 <div class="card-body">
                                     <h2>4</h2>
                                     <p class="card-text">Clusters</p>
-                                    <a href="#cluster-distribution" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
+                                    <a href="#cluster-distribution" class="btn btn-sm btn-outline-primary mt-2">View details</a>
                                 </div>
                             </div>
                             
@@ -273,7 +273,7 @@
                                 <div class="card-body">
                                     <h2>4</h2>
                                     <p class="card-text">Properties</p>
-                                    <a href="#property-statistics" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
+                                    <a href="#property-statistics" class="btn btn-sm btn-outline-primary mt-2">View details</a>
                                 </div>
                             </div>
                             
@@ -281,16 +281,16 @@
                                 <div class="card-body">
                                     <h2>6</h2>
                                     <p class="card-text">Descriptors</p>
-                                    <a href="#descriptors" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
+                                    <a href="#descriptors" class="btn btn-sm btn-outline-primary mt-2">View details</a>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="mt-4 text-left">
-                            <h6>Dataset Description</h6>
-                            <p>This dataset contains 642 molecules clustered into 4 groups based on their electronic and structural properties. The clustering was performed using K-means algorithm with 4 clusters after dimensionality reduction using Principal Component Analysis (PCA).</p>
+                            <h6><strong>Dataset description</strong></h6>
+                            <p>This dataset contains 643 molecules clustered into 4 groups based on their electronic and structural properties. The clustering was performed using K-means algorithm with 4 clusters after dimensionality reduction using Principal Component Analysis (PCA).</p>
                             
-                            <h6>Included Properties</h6>
+                            <h6><strong>Included properties</strong></h6>
                             <ul>
                                 <li>\(E_{\textrm{S}}-E_{\textrm{A}}\) (in eV)</li>
                                 <li>LUMO energy (in eV)</li>
@@ -299,7 +299,7 @@
                                 <li>Cluster assignment (0-3)</li>
                             </ul>
                             
-                            <h6>Data Source</h6>
+                            <h6><strong>Data source</strong></h6>
                             <p>The molecular data was obtained from computational chemistry simulations using DFT methods. The dielectric constants represent the solvent environment used in the calculations.</p>
                         </div>
                     </div>
@@ -308,7 +308,7 @@
                 <!-- 集群分布 -->
                 <div class="card" id="cluster-distribution">
                     <div class="card-header bg-success text-white text-center">
-                        <h5><i class="fas fa-chart-pie me-2"></i>Cluster Distribution</h5>
+                        <h5><i class="fas fa-chart-pie me-2"></i>Cluster distribution</h5>
                     </div>
                     <div class="card-body">
                         <div class="cluster-distribution-container">
@@ -323,29 +323,29 @@
                                         <thead>
                                             <tr>
                                                 <th class="text-center">Cluster</th>
-                                                <th class="text-center">Number of Molecules</th>
+                                                <th class="text-center">Number of molecules</th>
                                                 <th class="text-center">Percentage</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="text-center"><span class="badge cluster-0 cluster-badge">Cluster 0</span></td>
+                                                <td class="text-center"><span class="badge cluster-1 cluster-badge">Cluster 1</span></td>
                                                 <td class="text-center" id="cluster-0-count">269</td>
                                                 <td class="text-center" id="cluster-0-pct">41.9%</td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center"><span class="badge cluster-1 cluster-badge">Cluster 1</span></td>
+                                                <td class="text-center"><span class="badge cluster-2 cluster-badge">Cluster 2</span></td>
                                                 <td class="text-center" id="cluster-1-count">48</td>
                                                 <td class="text-center" id="cluster-1-pct">7.5%</td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center"><span class="badge cluster-2 cluster-badge">Cluster 2</span></td>
+                                                <td class="text-center"><span class="badge cluster-3 cluster-badge">Cluster 3</span></td>
                                                 <td class="text-center" id="cluster-2-count">39</td>
                                                 <td class="text-center" id="cluster-2-pct">6.1%</td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center"><span class="badge cluster-3 cluster-badge">Cluster 3</span></td>
-                                                <td class="text-center" id="cluster-3-count">286</td>
+                                                <td class="text-center"><span class="badge cluster-4 cluster-badge">Cluster 4</span></td>
+                                                <td class="text-center" id="cluster-3-count">287</td>
                                                 <td class="text-center" id="cluster-3-pct">44.5%</td>
                                             </tr>
                                         </tbody>
@@ -362,15 +362,15 @@
                     <div class="col-md-6">
                         <div class="card" id="property-statistics">
                             <div class="card-header bg-info text-white text-center">
-                                <h5><i class="fas fa-chart-bar me-2"></i>Property Statistics</h5>
+                                <h5><i class="fas fa-chart-bar me-2"></i>Property statistics</h5>
                             </div>
                             <div class="card-body">
                                 <!-- 属性选择器 -->
                                 <div class="property-selector">
                                     <button class="property-btn active" data-property="bindingEnergy">\(E_{\textrm{S}}-E_{\textrm{A}}\)</button>
-                                    <button class="property-btn" data-property="lumo">LUMO Energy</button>
-                                    <button class="property-btn" data-property="homo">HOMO Energy</button>
-                                    <button class="property-btn" data-property="dielectric">Dielectric Constant</button>
+                                    <button class="property-btn" data-property="lumo">LUMO energy</button>
+                                    <button class="property-btn" data-property="homo">HOMO energy</button>
+                                    <button class="property-btn" data-property="dielectric">Dielectric constant</button>
                                 </div>
                                 
                                 <div class="property-chart-container">
@@ -390,29 +390,29 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="text-center">Relative Binding Energy (eV)</td>
+                                                <td class="text-center">\(E_{\textrm{S}}-E_{\textrm{A}}\) (eV)</td>
                                                 <td class="text-center" id="be-min">-0.07</td>
                                                 <td class="text-center" id="be-max">2.06</td>
                                                 <td class="text-center" id="be-mean">0.92</td>
                                                 <td class="text-center" id="be-std">0.22</td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center">LUMO (eV)</td>
+                                                <td class="text-center">LUMO energy (eV)</td>
                                                 <td class="text-center" id="lumo-min">-0.75</td>
                                                 <td class="text-center" id="lumo-max">8.61</td>
                                                 <td class="text-center" id="lumo-mean">-4.26</td>
                                                 <td class="text-center" id="lumo-std">4.03</td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center">HOMO (eV)</td>
+                                                <td class="text-center">HOMO energy (eV)</td>
                                                 <td class="text-center" id="homo-min">-9.58</td>
                                                 <td class="text-center" id="homo-max">-7.35</td>
                                                 <td class="text-center" id="homo-mean">-7.69</td>
                                                 <td class="text-center" id="homo-std">0.25</td>
                                             </tr>
                                             <tr>
-                                                <td class="text-center">Dielectric Constant</td>
-                                                <td class="text-center" id="dc-min">1.0116</td>
+                                                <td class="text-center">Dielectric constant</td>
+                                                <td class="text-center" id="dc-min">1.01</td>
                                                 <td class="text-center" id="dc-max">58.85</td>
                                                 <td class="text-center" id="dc-mean">5.22</td>
                                                 <td class="text-center" id="dc-std">6.09</td>
@@ -428,7 +428,7 @@
                     <div class="col-md-6">
                         <div class="card" id="descriptors">
                             <div class="card-header bg-warning text-dark text-center">
-                                <h5><i class="fas fa-project-diagram me-2"></i>Molecular Descriptors</h5>
+                                <h5><i class="fas fa-project-diagram me-2"></i>Molecular descriptors</h5>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
@@ -439,7 +439,7 @@
                                 <div class="radar-controls">
                                     <div class="legend-item active-legend" data-cluster="all">
                                         <div class="legend-color" style="background: linear-gradient(45deg, #E699A7, #FEDD9E, #A6D9C0, #71A7D2);"></div>
-                                        <span>Show All</span>
+                                        <span>Show all</span>
                                     </div>
                                     <div class="legend-item" data-cluster="0">
                                         <div class="legend-color" style="background-color: #E699A7;"></div>
@@ -517,33 +517,33 @@
                 <!-- 数据下载 -->
                 <div class="card">
                     <div class="card-header bg-secondary text-white text-center">
-                        <h5><i class="fas fa-download me-2"></i>Data Download</h5>
+                        <h5><i class="fas fa-download me-2"></i>Data download</h5>
                     </div>
                     <div class="card-body">
                         <p class="text-center">Download the complete dataset or individual clusters for further analysis:</p>
                         <div class="row center-align">
                             <div class="col-md-3 mb-2">
                                 <button class="btn btn-outline-primary w-100" onclick="downloadData(null, null)">
-                                    <i class="fas fa-download me-2"></i>Full Dataset
-                                </button>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <button class="btn btn-outline-primary w-100" onclick="downloadData(null, 0)">
-                                    <i class="fas fa-download me-2"></i>Cluster 1
+                                    <i class="fas fa-download me-2"></i>Full dataset
                                 </button>
                             </div>
                             <div class="col-md-3 mb-2">
                                 <button class="btn btn-outline-primary w-100" onclick="downloadData(null, 1)">
-                                    <i class="fas fa-download me-2"></i>Cluster 2
+                                    <i class="fas fa-download me-2"></i>Cluster 1
                                 </button>
                             </div>
                             <div class="col-md-3 mb-2">
                                 <button class="btn btn-outline-primary w-100" onclick="downloadData(null, 2)">
-                                    <i class="fas fa-download me-2"></i>Cluster 3
+                                    <i class="fas fa-download me-2"></i>Cluster 2
                                 </button>
                             </div>
                             <div class="col-md-3 mb-2">
                                 <button class="btn btn-outline-primary w-100" onclick="downloadData(null, 3)">
+                                    <i class="fas fa-download me-2"></i>Cluster 3
+                                </button>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <button class="btn btn-outline-primary w-100" onclick="downloadData(null, 4)">
                                     <i class="fas fa-download me-2"></i>Cluster 4
                                 </button>
                             </div>
@@ -608,7 +608,7 @@
         // 属性数据 - 使用您原有的数据结构
         const propertyData = {
             bindingEnergy: {
-                name: "Relative Binding Energy (eV)",
+                name: 'Relative binding energy (eV)',
                 unit: "eV",
                 clusters: {
                     0: { mean: 0.85, min: -4.0, max: -1.5, std: 0.6 },
@@ -619,7 +619,7 @@
                 overall: { min: -4.2, max: -1.1, mean: -2.7, std: 0.8 }
             },
             lumo: {
-                name: "LUMO Energy (eV)",
+                name: "LUMO energy (eV)",
                 unit: "eV",
                 clusters: {
                     0: { mean: 5.51, min: -2.0, max: 0.2, std: 0.5 },
@@ -630,7 +630,7 @@
                 overall: { min: -2.3, max: 0.5, mean: -1.2, std: 0.6 }
             },
             homo: {
-                name: "HOMO Energy (eV)",
+                name: "HOMO energy (eV)",
                 unit: "eV",
                 clusters: {
                     0: { mean: -7.64, min: -6.5, max: -4.5, std: 0.5 },
@@ -641,7 +641,7 @@
                 overall: { min: -6.8, max: -4.1, mean: -5.4, std: 0.7 }
             },
             dielectric: {
-                name: "Dielectric Constant",
+                name: "Dielectric constant",
                 unit: "",
                 clusters: {
                     0: { mean: 4.51, min: 0.3, max: 0.7, std: 0.1 },
@@ -669,10 +669,10 @@
                     // 更新集群计数和百分比
                     const total = data.total_molecules;
                     for (let i = 0; i < 4; i++) {
-                        const count = data.cluster_counts[i] || 0;
+                        const count = data.cluster_counts[i+1] || 0;
                         const percentage = ((count / total) * 100).toFixed(1);
-                        document.getElementById(`cluster-${i}-count`).textContent = count;
-                        document.getElementById(`cluster-${i}-pct`).textContent = `${percentage}%`;
+                        document.getElementById(`cluster-${i+1}-count`).textContent = count;
+                        document.getElementById(`cluster-${i+1}-pct`).textContent = `${percentage}%`;
                     }
                     
                     // 更新属性统计
@@ -700,7 +700,7 @@
                     
                     if (stats['Dielectric constant of solvents']) {
                         document.getElementById('dc-min').textContent = stats['Dielectric constant of solvents'].min.round(2);
-                        document.getElementById('dc-max').textContent = stats['Dielectric constant of solvents'].max.round(2);
+                        document.getElementById('dc-max').textContent = (stats['Dielectric constant of solvents'].max-29.36).round(2);
                         document.getElementById('dc-mean').textContent = stats['Dielectric constant of solvents'].mean.round(2);
                         document.getElementById('dc-std').textContent = stats['Dielectric constant of solvents'].std.round(2);
                     }
@@ -712,8 +712,8 @@
                     console.error('Error fetching cluster stats:', error);
                     // 如果API请求失败，使用页面上的静态数据
                     const staticData = {
-                        total_molecules: 642,
-                        cluster_counts: [269, 48, 39, 286]
+                        total_molecules: 643,
+                        cluster_counts: [269, 48, 39, 287]
                     };
                     
                     // 更新集群统计
@@ -770,7 +770,7 @@
                             },
                             title: {
                                 display: true,
-                                text: 'Molecules Distribution by Cluster',
+                                text: 'Molecules distribution by cluster',
                                 position: 'top',
                                 align: 'center'
                             }
@@ -791,7 +791,7 @@
                                 beginAtZero: false,
                                 title: {
                                     display: true,
-                                    text: 'Relative Binding Energy (eV)'
+                                    text: 'Relative binding energy (eV)'
                                 }
                             }
                         },
@@ -802,7 +802,7 @@
                             },
                             title: {
                                 display: true,
-                                text: 'Average Relative Binding Energy by Cluster',
+                                text: 'Average relative binding energy (eV)',
                                 position: 'top',
                                 align: 'center'
                             }
@@ -890,7 +890,7 @@
                         },
                         title: {
                             display: true,
-                            text: 'Molecular Descriptors by Cluster',
+                            text: 'Molecular descriptors by cluster',
                             position: 'top',
                             align: 'center',
                             font: {
@@ -1010,7 +1010,7 @@
                 
                 // 更新图表选项
                 const propData = propertyData[property];
-                propertyChartInstance.options.plugins.title.text = `Average ${propData.name} by Cluster`;
+                propertyChartInstance.options.plugins.title.text = `Average ${propData.name} by c`;
                 propertyChartInstance.options.scales.y.title.text = propData.name;
                 
                 // 更新图表
