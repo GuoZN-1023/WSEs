@@ -8,7 +8,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
-        /* 保持原有样式不变 */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f8f9fa;
@@ -48,7 +47,7 @@
         .cluster-3 { border-left: 4px solid #A6D9C0; }
         .cluster-4 { border-left: 4px solid #71A7D2; }
         #3d-plot {
-            height: 600px;
+            height: 650px;
             width: 100%;
             position: relative;
         }
@@ -58,9 +57,6 @@
         }
         .property-table {
             font-size: 0.9rem;
-        }
-        .property-table th {
-            width: 30%;
         }
         .text-center {
             text-align: center !important;
@@ -173,6 +169,29 @@
             font-size: 12px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             z-index: 100;
+        }
+        .right-images-container {
+            height: 650px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .right-images-container .card {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+        .right-images-container .card:last-child {
+            margin-bottom: 0;
+        }
+        .right-images-container .card-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        .right-images-container img {
+            max-height: 100%;
+            width: auto;
         }
     </style>
 </head>
@@ -296,7 +315,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 right-images-container">
                         <div class="card">
                             <div class="card-header text-center">
                                 <h5>Molecules in each clusters</h5>
@@ -305,7 +324,7 @@
                                 <img src="/static/images/cluster_distribution.png" class="img-fluid" alt="Molecules in Each Clusters" onerror="this.src='/static/images/placeholder.png'">
                             </div>
                         </div>
-                        <div class="card mb-3">
+                        <div class="card">
                             <div class="card-header text-center">
                                 <h5>Radar plot for descriptors</h5>
                             </div>
@@ -343,7 +362,7 @@
         window.currentSearchResults = [];
         window.originalPlotData = null;
         window.currentPlot = null;
-        window.currentViewState = 'original'; // 'original', 'search', 'selected'
+        window.currentViewState = 'original';
         window.currentLayout = null;
         window.originalTraces = null;
         window.currentCamera = null;
@@ -352,8 +371,10 @@
         window.currentSelectedMolecule = null;
         window.allClusters = [1, 2, 3, 4];
         window.plotInitialized = false;
-        window.currentPlotData = []; // 存储当前显示的绘图数据
-        window.selectedMolecules = new Set(); // 存储选中的分子SMILES
+        window.currentPlotData = [];
+        window.selectedMolecules = new Set();
+        window.isProcessingClick = false;
+        window.clickEventBound = false; // 跟踪点击事件是否已绑定
 
         document.addEventListener('DOMContentLoaded', function() {
             // 显示加载指示器
@@ -433,26 +454,31 @@
                 }
             });
             
-            // 下载按钮事件
+            // 下载按钮事件 - 修改为显示提示信息
             document.getElementById('download-all-data').addEventListener('click', function() {
-                downloadData(null, null);
+                showDownloadAlert();
             });
             
             document.getElementById('download-cluster-1').addEventListener('click', function() {
-                downloadData(null, 1);
+                showDownloadAlert();
             });
             
             document.getElementById('download-cluster-2').addEventListener('click', function() {
-                downloadData(null, 2);
+                showDownloadAlert();
             });
             
             document.getElementById('download-cluster-3').addEventListener('click', function() {
-                downloadData(null, 3);
+                showDownloadAlert();
             });
             
             document.getElementById('download-cluster-4').addEventListener('click', function() {
-                downloadData(null, 4);
+                showDownloadAlert();
             });
+            
+            // 显示下载提示的函数
+            function showDownloadAlert() {
+                alert('The overall dataset is protected for safety, for details please contact email: gzn23@mails.tsinghua.edu.cn or 240715506@qq.com');
+            }
             
             // 渲染初始绘图
             function renderInitialPlot(molecules) {
@@ -481,7 +507,7 @@
                             hoverinfo: 'text',
                             name: `Cluster ${cluster}`,
                             showlegend: true,
-                            customdata: clusterMolecules.map(m => [m.SMILES, m.Cluster])
+                            customdata: clusterMolecules.map(m => m.SMILES) // 简化customdata，只存储SMILES
                         };
                         traces.push(trace);
                     }
@@ -541,7 +567,6 @@
             function bindCameraChangeListener() {
                 const plotElement = document.getElementById('3d-plot');
                 plotElement.on('plotly_relayout', function(eventData) {
-                    // 检查是否是相机位置变化
                     if (eventData['scene.camera'] || 
                         eventData['scene.camera.eye'] || 
                         eventData['scene.camera.center'] || 
@@ -551,60 +576,68 @@
                 });
             }
             
-            // 绑定3D图点击事件
+            // 绑定3D图点击事件 - 完全重写，简化逻辑
             function bindPlotClickEvent() {
                 const plotElement = document.getElementById('3d-plot');
                 
-                // 移除之前的事件监听器
+                // 移除之前的事件监听器，避免重复绑定
                 plotElement.removeAllListeners('plotly_click');
                 
                 plotElement.on('plotly_click', function(data) {
+                    if (window.isProcessingClick) return;
+                    window.isProcessingClick = true;
+                    
                     console.log('Plot clicked', data);
                     
                     if (data.points && data.points.length > 0) {
                         const pointData = data.points[0];
                         let smiles = '';
                         
-                        // 简化SMILES提取逻辑，优先使用最可靠的方法
+                        // 简化的SMILES提取逻辑
+                        // 方法1: 直接从customdata获取
                         if (pointData.customdata) {
-                            // customdata通常是最可靠的数据源
-                            if (Array.isArray(pointData.customdata) && pointData.customdata.length > 0) {
-                                smiles = pointData.customdata[0]; // 第一个元素通常是SMILES
-                            }
-                        } 
-            
-                        // 如果customdata不可用，尝试text属性
+                            smiles = pointData.customdata;
+                        }
+                        
+                        // 方法2: 从text获取
                         if (!smiles && pointData.text) {
                             smiles = pointData.text;
                         }
-            
-                        // 最后的备选方案：直接从数据点索引获取
+                        
+                        // 方法3: 从数据索引获取
                         if (!smiles && pointData.pointIndex !== undefined && pointData.data && pointData.data.customdata) {
                             const customDataArray = pointData.data.customdata;
                             if (Array.isArray(customDataArray) && customDataArray[pointData.pointIndex]) {
-                                smiles = customDataArray[pointData.pointIndex][0];
-                }
-            }
+                                smiles = customDataArray[pointData.pointIndex];
+                            }
+                        }
                         
                         console.log('Extracted SMILES:', smiles);
                         
                         if (smiles) {
-                            handleMoleculeClick(smiles);
+                            // 直接处理点击，不切换选中状态
+                            handleSingleMoleculeClick(smiles);
                         } else {
                             console.error('Could not extract SMILES from point data:', pointData);
                             alert('Could not identify the selected molecule');
                         }
                     }
+                    
+                    // 重置点击处理标志
+                    setTimeout(() => {
+                        window.isProcessingClick = false;
+                    }, 300);
                 });
+                
+                window.clickEventBound = true;
             }
             
-            // 处理分子点击
-            function handleMoleculeClick(smiles) {
-                // 查找分子详情 - 优先从原始数据中查找
+            // 处理单个分子点击 - 简化逻辑
+            function handleSingleMoleculeClick(smiles) {
+                // 查找分子详情
                 let molecule = window.originalPlotData.find(m => m.SMILES === smiles);
                 
                 if (!molecule) {
-                    // 如果原始数据中找不到，尝试从当前数据中查找
                     molecule = window.currentPlotData.find(m => m.SMILES === smiles);
                 }
                 
@@ -614,8 +647,8 @@
                     // 显示分子详情
                     showMoleculeDetails(molecule);
                     
-                    // 切换选中状态
-                    toggleMoleculeSelection(smiles, molecule);
+                    // 只选中当前点击的分子
+                    selectSingleMolecule(smiles, molecule);
                     
                 } else {
                     console.error('Molecule not found with SMILES:', smiles);
@@ -623,21 +656,14 @@
                 }
             }
             
-            // 切换分子选中状态
-            function toggleMoleculeSelection(smiles, molecule) {
-                const wasSelected = window.selectedMolecules.has(smiles);
+            // 选择单个分子
+            function selectSingleMolecule(smiles, molecule) {
+                // 清除所有选中
+                window.selectedMolecules.clear();
                 
-                if (wasSelected) {
-                    // 如果已经选中，则取消选中
-                    window.selectedMolecules.delete(smiles);
-                    if (window.currentSelectedMolecule && window.currentSelectedMolecule.SMILES === smiles) {
-                        window.currentSelectedMolecule = null;
-                    }
-                } else {
-                    // 如果未选中，则选中
-                    window.selectedMolecules.add(smiles);
-                    window.currentSelectedMolecule = molecule;
-                }
+                // 选中当前分子
+                window.selectedMolecules.add(smiles);
+                window.currentSelectedMolecule = molecule;
                 
                 // 更新选中计数显示
                 updateSelectedCount();
@@ -648,23 +674,10 @@
                 // 更新搜索结果卡片状态
                 updateSearchResultsSelection();
                 
-                // 显示刷新按钮（当有选中分子时）
-                if (window.selectedMolecules.size > 0) {
-                    document.getElementById('refresh-btn').style.display = 'block';
-                    document.getElementById('mode-indicator').textContent = 'View: Selected Molecules';
-                    window.currentViewState = 'selected';
-                } else {
-                    // 如果没有选中分子，根据当前状态决定是否显示刷新按钮
-                    if (window.currentSearchResults.length > 0) {
-                        document.getElementById('refresh-btn').style.display = 'block';
-                        document.getElementById('mode-indicator').textContent = 'View: Search Results';
-                        window.currentViewState = 'search';
-                    } else {
-                        document.getElementById('refresh-btn').style.display = 'none';
-                        document.getElementById('mode-indicator').textContent = 'View: Original';
-                        window.currentViewState = 'original';
-                    }
-                }
+                // 显示刷新按钮
+                document.getElementById('refresh-btn').style.display = 'block';
+                document.getElementById('mode-indicator').textContent = 'View: Selected Molecule';
+                window.currentViewState = 'selected';
             }
             
             // 更新选中计数显示
@@ -673,7 +686,7 @@
                 document.getElementById('selected-count').textContent = `Selected: ${count}`;
             }
             
-            // 更新图形显示
+            // 更新图形显示 - 简化逻辑
             function updatePlotWithCurrentState() {
                 if (!window.plotInitialized) return;
                 
@@ -690,10 +703,8 @@
                 let traces;
                 
                 if (window.currentViewState === 'search' && window.currentSearchResults.length > 0) {
-                    // 搜索状态：显示搜索结果，淡化其他点
                     traces = createSearchResultTraces(window.currentSearchResults);
                 } else {
-                    // 原始状态或选中状态：显示所有分子，高亮选中的
                     traces = createTracesFromMolecules(window.currentPlotData);
                 }
                 
@@ -706,16 +717,18 @@
                     }
                 };
                 
-                // 使用react方法更新图形（性能更好）
+                // 使用react方法更新图形
                 Plotly.react('3d-plot', traces, layout).then(function() {
                     // 重新绑定点击事件和相机监听
-                    bindPlotClickEvent();
+                    if (!window.clickEventBound) {
+                        bindPlotClickEvent();
+                    }
                     bindCameraChangeListener();
                     console.log('Plot updated with current state');
                 });
             }
             
-            // 从分子数据创建轨迹
+            // 从分子数据创建轨迹 - 简化逻辑
             function createTracesFromMolecules(molecules) {
                 const traces = [];
                 const selectedSmiles = Array.from(window.selectedMolecules);
@@ -737,14 +750,14 @@
                                 type: 'scatter3d',
                                 marker: {
                                     size: 5,
-                                    color: window.fadedColors[cluster-1] || window.clusterColors[0],
+                                    color: window.clusterColors[cluster-1] || window.clusterColors[0],
                                     opacity: 0.8
                                 },
                                 text: unselectedInCluster.map(m => m.SMILES),
                                 hoverinfo: 'text',
                                 name: `Cluster ${cluster}`,
                                 showlegend: true,
-                                customdata: unselectedInCluster.map(m => [m.SMILES, m.Cluster])
+                                customdata: unselectedInCluster.map(m => m.SMILES)
                             });
                         }
                         
@@ -757,15 +770,16 @@
                                 mode: 'markers',
                                 type: 'scatter3d',
                                 marker: {
-                                    size: 7,
-                                    color: window.clusterColors[cluster-1] || window.clusterColors[0],
-                                    opacity: 1
+                                    size: 10,
+                                    color: '#FF0000', // 使用红色高亮选中分子
+                                    opacity: 1,
+                                    symbol: 'diamond'
                                 },
                                 text: selectedInCluster.map(m => m.SMILES + ' (Selected)'),
                                 hoverinfo: 'text',
                                 name: `Selected - Cluster ${cluster}`,
                                 showlegend: false,
-                                customdata: selectedInCluster.map(m => [m.SMILES, m.Cluster])
+                                customdata: selectedInCluster.map(m => m.SMILES)
                             });
                         }
                     }
@@ -774,7 +788,7 @@
                 return traces;
             }
             
-            // 创建搜索结果轨迹
+            // 创建搜索结果轨迹 - 简化逻辑
             function createSearchResultTraces(results) {
                 const traces = [];
                 const resultSmiles = results.map(r => r.SMILES);
@@ -804,13 +818,13 @@
                             marker: {
                                 size: 4,
                                 color: window.fadedColors[cluster-1] || window.fadedColors[0],
-                                opacity: 0.5
+                                opacity: 0.3
                             },
                             text: notInResults.map(m => m.SMILES),
                             hoverinfo: 'text',
                             name: `Cluster ${cluster}`,
                             showlegend: false,
-                            customdata: notInResults.map(m => [m.SMILES, m.Cluster])
+                            customdata: notInResults.map(m => m.SMILES)
                         });
                     }
                     
@@ -837,7 +851,7 @@
                                 hoverinfo: 'text',
                                 name: `Cluster ${cluster}`,
                                 showlegend: true,
-                                customdata: unselectedInResults.map(m => [m.SMILES, m.Cluster])
+                                customdata: unselectedInResults.map(m => m.SMILES)
                             });
                         }
                         
@@ -850,15 +864,16 @@
                                 mode: 'markers',
                                 type: 'scatter3d',
                                 marker: {
-                                    size: 7,
-                                    color:  window.clusterColors[cluster-1] || window.clusterColors[0],
-                                    opacity: 1
+                                    size: 10,
+                                    color: '#FF0000',
+                                    opacity: 1,
+                                    symbol: 'diamond'
                                 },
                                 text: selectedInResults.map(m => m.SMILES + ' (Selected)'),
                                 hoverinfo: 'text',
                                 name: `Selected - Cluster ${cluster}`,
                                 showlegend: false,
-                                customdata: selectedInResults.map(m => [m.SMILES, m.Cluster])
+                                customdata: selectedInResults.map(m => m.SMILES)
                             });
                         }
                     }
@@ -988,7 +1003,7 @@
                         document.getElementById('refresh-btn').style.display = 'block';
                         document.getElementById('mode-indicator').textContent = 'View: Search Results';
                         
-                        // 更新图形显示（搜索模式下会淡化非搜索结果）
+                        // 更新图形显示
                         updatePlotWithCurrentState();
                     }
                 })
@@ -1037,7 +1052,7 @@
                     
                     card.addEventListener('click', function(e) {
                         if (e.target.type !== 'checkbox') {
-                            handleMoleculeClick(molecule.SMILES);
+                            handleSingleMoleculeClick(molecule.SMILES);
                             
                             // 更新卡片选中状态
                             const isNowSelected = window.selectedMolecules.has(molecule.SMILES);
@@ -1050,7 +1065,7 @@
                     const checkbox = card.querySelector('.molecule-checkbox');
                     checkbox.addEventListener('click', function(e) {
                         e.stopPropagation();
-                        handleMoleculeClick(molecule.SMILES);
+                        handleSingleMoleculeClick(molecule.SMILES);
                         
                         // 更新卡片选中状态
                         const isNowSelected = window.selectedMolecules.has(molecule.SMILES);
@@ -1070,7 +1085,11 @@
                         // 如果状态发生变化，更新选中状态
                         if (wasChecked !== this.checked) {
                             if (this.checked) {
-                                window.selectedMolecules.add(checkbox.value);
+                                // 选中所有分子
+                                const molecule = window.currentSearchResults.find(m => m.SMILES === checkbox.value);
+                                if (molecule) {
+                                    window.selectedMolecules.add(checkbox.value);
+                                }
                             } else {
                                 window.selectedMolecules.delete(checkbox.value);
                             }
