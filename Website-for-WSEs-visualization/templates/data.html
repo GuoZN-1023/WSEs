@@ -292,15 +292,15 @@
                             
                             <h6><strong>Included properties</strong></h6>
                             <ul>
-                                <li>\(E_{\textrm{S}}-E_{\textrm{A}}\) (in eV)</li>
-                                <li>LUMO energy (in eV)</li>
-                                <li>HOMO energy (in eV)</li>
+                                <li style="font-family: Arial;">\(E_{\textrm{S}}-E_{\textrm{A}}\) (eV)</li>
+                                <li>LUMO energy (eV)</li>
+                                <li>HOMO energy (eV)</li>
                                 <li>Dielectric constant of solvents</li>
-                                <li>Cluster assignment (0-3)</li>
+                                <li>Cluster assignment (1-4)</li>
                             </ul>
                             
                             <h6><strong>Data source</strong></h6>
-                            <p>The molecular data was obtained from computational chemistry simulations using DFT methods. The dielectric constants represent the solvent environment used in the calculations.</p>
+                            <p>The molecular data was obtained from DFT, MD calculation and deep-learning model prediction. The dielectric constants represent the solvent environment used in the calculations.</p>
                         </div>
                     </div>
                 </div>
@@ -523,27 +523,27 @@
                         <p class="text-center">Download the complete dataset or individual clusters for further analysis:</p>
                         <div class="row center-align">
                             <div class="col-md-3 mb-2">
-                                <button class="btn btn-outline-primary w-100" onclick="downloadData(null, null)">
+                                <button class="btn btn-outline-primary w-100" id="download-full-dataset">
                                     <i class="fas fa-download me-2"></i>Full dataset
                                 </button>
                             </div>
                             <div class="col-md-3 mb-2">
-                                <button class="btn btn-outline-primary w-100" onclick="downloadData(null, 1)">
+                                <button class="btn btn-outline-primary w-100" id="download-cluster-1">
                                     <i class="fas fa-download me-2"></i>Cluster 1
                                 </button>
                             </div>
                             <div class="col-md-3 mb-2">
-                                <button class="btn btn-outline-primary w-100" onclick="downloadData(null, 2)">
+                                <button class="btn btn-outline-primary w-100" id="download-cluster-2">
                                     <i class="fas fa-download me-2"></i>Cluster 2
                                 </button>
                             </div>
                             <div class="col-md-3 mb-2">
-                                <button class="btn btn-outline-primary w-100" onclick="downloadData(null, 3)">
+                                <button class="btn btn-outline-primary w-100" id="download-cluster-3">
                                     <i class="fas fa-download me-2"></i>Cluster 3
                                 </button>
                             </div>
                             <div class="col-md-3 mb-2">
-                                <button class="btn btn-outline-primary w-100" onclick="downloadData(null, 4)">
+                                <button class="btn btn-outline-primary w-100" id="download-cluster-4">
                                     <i class="fas fa-download me-2"></i>Cluster 4
                                 </button>
                             </div>
@@ -561,43 +561,9 @@
             return Number(Math.round(Number(this.toString() + 'e' + decimals)) + 'e-' + decimals);
         };
 
-        // 下载数据函数
-        function downloadData(selectedSmiles, cluster) {
-            fetch('/api/download', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    smiles: selectedSmiles,
-                    cluster: cluster
-                })
-            })
-            .then(response => response.blob())
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                
-                // 设置文件名
-                if (cluster !== null) {
-                    a.download = `cluster_${cluster}.csv`;
-                } else if (selectedSmiles) {
-                    a.download = 'selected_molecules.csv';
-                } else {
-                    a.download = 'all_molecules.csv';
-                }
-                
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-            })
-            .catch(error => {
-                console.error('Error downloading data:', error);
-                alert('Error downloading data');
-            });
+        // 修改下载数据函数 - 显示提示信息
+        function showDownloadAlert() {
+            alert('The overall dataset is protected for safety.\nFor details, please contact email: gzn23@mails.tsinghua.edu.cn');
         }
 
         // 全局变量
@@ -654,6 +620,13 @@
         };
 
         document.addEventListener('DOMContentLoaded', function() {
+            // 设置下载按钮事件监听
+            document.getElementById('download-full-dataset').addEventListener('click', showDownloadAlert);
+            document.getElementById('download-cluster-1').addEventListener('click', showDownloadAlert);
+            document.getElementById('download-cluster-2').addEventListener('click', showDownloadAlert);
+            document.getElementById('download-cluster-3').addEventListener('click', showDownloadAlert);
+            document.getElementById('download-cluster-4').addEventListener('click', showDownloadAlert);
+
             // 从后端获取统计数据
             fetch('/api/cluster_stats')
                 .then(response => {
@@ -789,6 +762,8 @@
                         scales: {
                             y: {
                                 beginAtZero: false,
+                                min: 0.70,  
+                                max: 1.15, 
                                 title: {
                                     display: true,
                                     text: 'Relative binding energy (eV)'
@@ -802,7 +777,7 @@
                             },
                             title: {
                                 display: true,
-                                text: 'Average relative binding energy (eV)',
+                                text: 'Average Relative binding energy (eV)', 
                                 position: 'top',
                                 align: 'center'
                             }
@@ -949,7 +924,7 @@
                         label: propData.name,
                         data: data,
                         backgroundColor: clusterColors,
-                        borderColor: clusterColors.map(color => color-'60'),
+                        borderColor: clusterColors.map(color => color.replace(')', ', 0.8)').replace('rgb', 'rgba')),
                         borderWidth: 1
                     }]
                 };
@@ -1010,8 +985,19 @@
                 
                 // 更新图表选项
                 const propData = propertyData[property];
-                propertyChartInstance.options.plugins.title.text = `Average ${propData.name} by c`;
+                
+                // 修复问题2：移除标题中的"by c"
+                propertyChartInstance.options.plugins.title.text = `Average ${propData.name}`;
                 propertyChartInstance.options.scales.y.title.text = propData.name;
+                
+                // 修复问题1：为bindingEnergy设置特定的y轴范围，其他属性自动调整
+                if (property === 'bindingEnergy') {
+                    propertyChartInstance.options.scales.y.min = 0.70;
+                    propertyChartInstance.options.scales.y.max = 1.15;
+                } else {
+                    propertyChartInstance.options.scales.y.min = undefined;
+                    propertyChartInstance.options.scales.y.max = undefined;
+                }
                 
                 // 更新图表
                 propertyChartInstance.update();
