@@ -1,28 +1,16 @@
+import os
+import re
+import json
+from io import BytesIO
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler
 import plotly
-import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import rdkit
-from rdkit import Chem
-from rdkit.Chem import Draw, AllChem
-from rdkit.Chem.Draw import SimilarityMaps
-from rdkit import DataStructs
-from rdkit.DataStructs import FingerprintSimilarity
-from rdkit.Chem.Fingerprints.FingerprintMols import FingerprintMol
-from rdkit import RDLogger
-import sqlite3
-import os
 from flask import Flask, render_template, request, jsonify, send_file
-import json
-import base64
-from io import BytesIO
-import re
-import shutil
-import csv
+from rdkit import Chem, DataStructs, RDLogger
+from rdkit.Chem import Draw, AllChem
 from PIL import Image, ImageDraw, ImageFont
+
 
 RDLogger.DisableLog('rdApp.error')
 

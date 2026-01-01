@@ -1,0 +1,15 @@
+# Core web app
+Flask>=2.2,<4
+gunicorn>=21.0
+
+# Data + ML
+pandas>=1.5
+numpy>=1.23
+scikit-learn>=1.2
+
+# Visualization
+plotly>=5.15
+
+# Chemistry + images
+rdkit-pypi>=2022.9.5
+Pillow>=9.0
